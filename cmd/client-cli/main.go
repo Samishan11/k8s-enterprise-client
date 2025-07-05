@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"k8s-enterprise-client/pkg/k8sclient"
+	"github.com/Samishan11/k8s-enterprise-client/pkg/k8sclient"
 
 	"go.uber.org/zap"
 
