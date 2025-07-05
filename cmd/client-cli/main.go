@@ -1,39 +1,36 @@
 package main
 
 import (
-	"flag"
+	"context"
 	"log"
-	"os"
-	"time"
 
-	"github.com/spf13/cobra"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	"k8s-enterprise-client/pkg/k8sclient"
+
+	"go.uber.org/zap"
+
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 func main() {
-	kubeconfig := flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	flag.Parse()
-
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	logger, err := zap.NewProduction()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Failed to create logger: %v", err)
 	}
 
-	clientset, err := kubernetes.NewForConfig(config)
+	opts := k8sclient.DefaultOptions()
+	opts.KubeconfigPath = ""
+	opts.EnableLeaderElection = true
+	opts.LeaderElectionID = "k8s-client-leader"
+
+	client, err := k8sclient.NewClient(context.Background(), opts, logger)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("Failed to create client", zap.Error(err))
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	pods, err := clientset.CoreV1().Pods("default").List(ctx, metav1.ListOptions{})
+	pods, err := client.ListPodsEnhanced(context.Background(), "default", labels.Everything(), true)
 	if err != nil {
-		log.Fatal(err)
+		logger.Error("Failed to list pods", zap.Error(err))
 	}
-	for _, pod := range pods.Items {
-		fmt.Println(pod.Name)
-	}
+
+	logger.Info("Found pods", zap.Int("count", len(pods)))
 }

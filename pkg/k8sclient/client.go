@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -21,30 +20,6 @@ import (
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
-
-// ClientOptions for configuring the Kubernetes client
-type ClientOptions struct {
-	KubeconfigPath       string
-	QPS                  float32
-	Burst                int
-	Timeout              time.Duration
-	UserAgent            string
-	EnableLeaderElection bool
-	LeaderElectionID     string
-}
-
-// Client wraps Kubernetes clients with enterprise features
-type Client struct {
-	Clientset     kubernetes.Interface
-	DynamicClient dynamic.Interface
-	MetricsClient *versioned.Clientset
-	config        *rest.Config
-	logger        *zap.Logger
-	leaderElector *leaderelection.LeaderElector
-	isLeader      bool
-	leaderMutex   sync.RWMutex
-	cache         *ResourceCache
-}
 
 // NewClient creates a new enterprise-grade Kubernetes client
 func NewClient(ctx context.Context, opts ClientOptions, logger *zap.Logger) (*Client, error) {
