@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/Samishan11/k8s-enterprise-client/internal/cache"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	corev1 "k8s.io/api/core/v1"
@@ -76,7 +77,7 @@ func NewClient(ctx context.Context, opts ClientOptions, logger *zap.Logger) (*Cl
 		MetricsClient: metricsClient,
 		config:        config,
 		logger:        logger,
-		cache:         NewResourceCache(5*time.Minute, 10*time.Minute),
+		cache:         cache.NewResourceCache(5*time.Minute, 10*time.Minute),
 	}
 
 	// Set up leader election if enabled

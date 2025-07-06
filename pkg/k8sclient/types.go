@@ -12,6 +12,8 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/leaderelection"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
+
+	"github.com/Samishan11/k8s-enterprise-client/internal/cache"
 )
 
 type ResourceMetrics struct {
@@ -51,5 +53,5 @@ type Client struct {
 	leaderElector *leaderelection.LeaderElector
 	isLeader      bool
 	leaderMutex   sync.RWMutex
-	cache         *ResourceCache
+	cache         *cache.ResourceCache
 }
